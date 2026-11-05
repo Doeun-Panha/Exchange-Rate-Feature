@@ -14,8 +14,17 @@ enum NetworkError: Error {
 }
 
 final class ExchangeRateService {
+    
+    private var apiBaseURL: String {
+        return Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String ?? ""
+    }
+    
     func fetchRates(baseCurrency: String = "USD") async throws -> ExchangeRateModel {
-        let urlString = "https://api.frankfurter.dev/v1/latest?base=\(baseCurrency)"
+        guard !apiBaseURL.isEmpty else {
+            throw NetworkError.invalidURL
+        }
+        
+        let urlString = "\(apiBaseURL)\(baseCurrency)"
         
         guard let url = URL(string: urlString) else {
             throw NetworkError.invalidURL

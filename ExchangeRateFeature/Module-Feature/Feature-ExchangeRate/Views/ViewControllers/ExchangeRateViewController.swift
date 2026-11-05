@@ -9,22 +9,11 @@ import UIKit
 
 class ExchangeRateViewController: UIViewController {
     private let viewModel = ExchangeRateViewModel()
-    private var isDarkMode = false
     
     private let containerView: UIView = {
         let view = UIView()
         view.backgroundColor = .clear
         view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    private lazy var dismissOverlayView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .clear
-        view.isHidden = true
-        view.translatesAutoresizingMaskIntoConstraints = false
-        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapThemeButton))
-        view.addGestureRecognizer(tap)
         return view
     }()
     
@@ -52,6 +41,16 @@ class ExchangeRateViewController: UIViewController {
         return button
     }()
     
+    private lazy var dismissOverlayView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        view.isHidden = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapThemeButton))
+        view.addGestureRecognizer(tap)
+        return view
+    }()
+    
     private let themeDropdownView: UIView = {
         let view = UIView()
         view.backgroundColor = .white
@@ -65,14 +64,6 @@ class ExchangeRateViewController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
-    private lazy var lightThemeButton: UIButton = {
-        return createThemeOptionButton(title: "☀️ White Cream", action: #selector(selectLightTheme))
-    }()
-
-    private lazy var darkThemeButton: UIButton = {
-        return createThemeOptionButton(title: "🌙 Smoke Matte", action: #selector(selectDarkTheme))
-    }()
 
     private lazy var themeStackView: UIStackView = {
         let stack = UIStackView(arrangedSubviews: [lightThemeButton, darkThemeButton])
@@ -83,13 +74,28 @@ class ExchangeRateViewController: UIViewController {
         return stack
     }()
     
-    private func createThemeOptionButton(title: String, textColor: UIColor = UIColor(hex: "282d44"), action: Selector) -> UIButton {
-        let button = UIButton(type: .system)
-        button.setTitle(title, for: .normal)
-        button.setTitleColor(textColor, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+    private lazy var lightThemeButton: UIButton = {
+        return createThemeOptionButton(title: "☀️ White Cream", action: #selector(selectLightTheme))
+    }()
+
+    private lazy var darkThemeButton: UIButton = {
+        return createThemeOptionButton(title: "🌙 Matte Smoke", action: #selector(selectDarkTheme))
+    }()
+    
+    private func createThemeOptionButton(title: String, textColor: UIColor = UIColor(hex: "272b2d"), action: Selector) -> UIButton {
+        var configuration = UIButton.Configuration.plain()
+        configuration.title = title
+        configuration.baseForegroundColor = textColor
+        configuration.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var outgoing = incoming
+            outgoing.font = .systemFont(ofSize: 14, weight: .medium)
+            return outgoing
+        }
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16)
+        configuration.imagePadding = 0
+        
+        let button = UIButton(configuration: configuration)
         button.contentHorizontalAlignment = .leading
-        button.contentEdgeInsets = UIEdgeInsets(top: 10, left: 16, bottom: 10, right: 16)
         button.addTarget(self, action: action, for: .touchUpInside)
         return button
     }
@@ -177,6 +183,13 @@ class ExchangeRateViewController: UIViewController {
         return tableView
     }()
     
+    private let activityIndicatorView: UIActivityIndicatorView = {
+        let activityIndicatorView = UIActivityIndicatorView(style: .large)
+        activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicatorView.hidesWhenStopped = true
+        return activityIndicatorView
+    }()
+    
     private let warningLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .regular)
@@ -188,13 +201,6 @@ class ExchangeRateViewController: UIViewController {
         return label
     }()
     
-    private let activityIndicatorView: UIActivityIndicatorView = {
-        let activityIndicatorView = UIActivityIndicatorView(style: .large)
-        activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
-        activityIndicatorView.hidesWhenStopped = true
-        return activityIndicatorView
-    }()
-    
     private let refreshControl = UIRefreshControl()
     
     override func viewDidLoad() {
@@ -203,11 +209,28 @@ class ExchangeRateViewController: UIViewController {
         setupUI()
         bindViewModel()
         viewModel.loadRates()
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleThemeChange),
+            name: .themeDidChange,
+            object: nil
+        )
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        updateTheme(isDark: ThemeManager.shared.isDarkMode)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: .themeDidChange,
+            object: nil
+        )
     }
 }
 
@@ -291,31 +314,28 @@ extension ExchangeRateViewController {
         refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         tableView.refreshControl = refreshControl
     }
-    
-    private func bindViewModel() {
-        viewModel.onStateChanged = { [weak self] in
-            guard let self = self else { return }
-            
-            DispatchQueue.main.async {
-                if self.viewModel.isLoading {
-                    if !self.refreshControl.isRefreshing {
-                        self.activityIndicatorView.startAnimating()
-                    }
-                } else {
-                    self.activityIndicatorView.stopAnimating()
-                    self.refreshControl.endRefreshing()
-                }
-                
-                if let error = self.viewModel.errorMessage {
-                    self.showErrorAlert(message: error)
-                }
-                
-                self.tableView.reloadData()
-                self.descriptionLabel.text = "Base: \(self.viewModel.baseCurrency) | \(self.viewModel.lastUpdatedDate)"
-            }
-        }
+}
+
+extension ExchangeRateViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return viewModel.rates.count
     }
     
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: RateTableViewCell.identifier, for: indexPath) as? RateTableViewCell else {
+            return UITableViewCell()
+        }
+        
+        let item = viewModel.rates[indexPath.row]
+        
+        let cellTextColor = ThemeManager.shared.isDarkMode ? UIColor.white : UIColor(hex: "272b2d")
+        cell.configure(with: item.key, rate: item.value, textColor: cellTextColor)
+        
+        return cell
+    }
+}
+
+extension ExchangeRateViewController {
     @objc private func handleRefresh() {
         viewModel.loadRates(for: viewModel.baseCurrency)
     }
@@ -347,62 +367,42 @@ extension ExchangeRateViewController {
     
     @objc private func selectLightTheme() {
         didTapThemeButton()
-        isDarkMode = false
-        
-        view.backgroundColor = .white
-        
-        appIconImageView.image = UIImage(named: "AppLogo")
-        
-        themeButton.setImage(UIImage(named: "White&Cream-theme"), for: .normal)
-        themeButton.layer.borderColor = UIColor(hex: "f2e7cb").cgColor
-        
-        themeDropdownView.backgroundColor = .white
-        lightThemeButton.setTitleColor(UIColor(hex: "272b2d"), for: .normal)
-        darkThemeButton.setTitleColor(UIColor(hex: "272b2d"), for: .normal)
-        
-        titleLabel.textColor = UIColor(hex: "272b2d")
-        descriptionLabel.textColor = UIColor(hex: "272b2d").withAlphaComponent(0.75)
-        
-        contentContainerView.backgroundColor = UIColor(hex: "f2e7cb")
-        
-        currencyLabel.textColor = UIColor(hex: "272b2d")
-        rateLabel.textColor = UIColor(hex: "272b2d")
-        
-        tableView.backgroundColor = UIColor(hex: "ffffff")
-        tableView.separatorColor = UIColor(hex: "f2e7cb")
-        tableView.reloadData()
-        
-        warningLabel.textColor = UIColor(hex: "272b2d")
+        ThemeManager.shared.currentTheme = .light
     }
     
     @objc private func selectDarkTheme() {
         didTapThemeButton()
-        isDarkMode = true
-        
-        view.backgroundColor = UIColor(hex: "636366")
-        
-        appIconImageView.image = UIImage(named: "AppLogo (Dark Mode)")
-        
-        themeButton.setImage(UIImage(named: "Smoke&Matte-theme"), for: .normal)
-        themeButton.layer.borderColor = UIColor(hex: "272b2d").cgColor
-        
-        themeDropdownView.backgroundColor = UIColor(hex: "272b2d")
-        lightThemeButton.setTitleColor(.white, for: .normal)
-        darkThemeButton.setTitleColor(.white, for: .normal)
-        
-        titleLabel.textColor = UIColor(hex: "ffffff")
-        descriptionLabel.textColor = UIColor(hex: "ffffff").withAlphaComponent(0.75)
-        
-        contentContainerView.backgroundColor = UIColor(hex: "272b2d")
-        
-        currencyLabel.textColor = .white
-        rateLabel.textColor = .white
-        
-        tableView.backgroundColor = UIColor(hex: "636366")
-        tableView.separatorColor = UIColor(hex: "272b2d")
-        tableView.reloadData()
-        
-        warningLabel.textColor = .white
+        ThemeManager.shared.currentTheme = .dark
+    }
+    
+    @objc private func handleThemeChange() {
+        updateTheme(isDark: ThemeManager.shared.isDarkMode)
+    }
+}
+
+extension ExchangeRateViewController {
+    private func bindViewModel() {
+        viewModel.onStateChanged = { [weak self] in
+            guard let self = self else { return }
+            
+            DispatchQueue.main.async {
+                if self.viewModel.isLoading {
+                    if !self.refreshControl.isRefreshing {
+                        self.activityIndicatorView.startAnimating()
+                    }
+                } else {
+                    self.activityIndicatorView.stopAnimating()
+                    self.refreshControl.endRefreshing()
+                }
+                
+                if let error = self.viewModel.errorMessage {
+                    self.showErrorAlert(message: error)
+                }
+                
+                self.tableView.reloadData()
+                self.descriptionLabel.text = "Base: \(self.viewModel.baseCurrency) | \(self.viewModel.lastUpdatedDate)"
+            }
+        }
     }
     
     private func showErrorAlert(message: String) {
@@ -412,23 +412,36 @@ extension ExchangeRateViewController {
         })
         present(alert, animated: true)
     }
-}
-
-extension ExchangeRateViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.rates.count
-    }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: RateTableViewCell.identifier, for: indexPath) as? RateTableViewCell else {
-            return UITableViewCell()
-        }
+    private func updateTheme(isDark: Bool) {
+        let backgroundColor = isDark ? UIColor(hex: "636366") : .white
+        let containerBackgroundColor = isDark ? UIColor(hex: "272b2d") : UIColor(hex: "f2e7cb")
+        let textColor = isDark ? .white : UIColor(hex: "272b2d")
+        let descriptionLabelColor = isDark ? UIColor.white.withAlphaComponent(0.75) : UIColor(hex: "272b2d").withAlphaComponent(0.75)
+        let logoName = isDark ? "AppLogo (Dark Mode)" : "AppLogo"
+        let themeIconName = isDark ? "Smoke&Matte-theme" : "White&Cream-theme"
+        let dropdownBackground = isDark ? UIColor(hex: "636366") : .white
+        let buttonTextColor = isDark ? UIColor.white : UIColor(hex: "272b2d")
         
-        let item = viewModel.rates[indexPath.row]
+        view.backgroundColor = backgroundColor
+        appIconImageView.image = UIImage(named: logoName)
+        themeButton.setImage(UIImage(named: themeIconName), for: .normal)
+        themeButton.layer.borderColor = containerBackgroundColor.cgColor
         
-        let cellTextColor = isDarkMode ? UIColor.white : UIColor(hex: "272b2d")
-        cell.configure(with: item.key, rate: item.value, textColor: cellTextColor)
+        themeDropdownView.backgroundColor = dropdownBackground
+        lightThemeButton.configuration?.baseForegroundColor = buttonTextColor
+        darkThemeButton.configuration?.baseForegroundColor = buttonTextColor
         
-        return cell
+        titleLabel.textColor = textColor
+        descriptionLabel.textColor = descriptionLabelColor
+        contentContainerView.backgroundColor = containerBackgroundColor
+        currencyLabel.textColor = textColor
+        rateLabel.textColor = textColor
+        
+        tableView.backgroundColor = backgroundColor
+        tableView.separatorColor = containerBackgroundColor
+        tableView.reloadData()
+        
+        warningLabel.textColor = textColor
     }
 }

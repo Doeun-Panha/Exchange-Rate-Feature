@@ -1,30 +1,27 @@
-cat << 'EOF' > .gitignore
-# Mac OS
-.DS_Store
-
 # Xcode
+#
 build/
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcworkspace/xcshareddata/swiftpm/
 DerivedData/
-*.pbxuser
-!default.pbxuser
-*.mode1v3
-!default.mode1v3
-*.mode2v3
-!default.mode2v3
-*.perspectivev3
-!default.perspectivev3
-*.xcworkspace
-!default.xcworkspace
-xcuserdata/
-*.xccheckout
 *.moved-aside
 *.xcuserstate
-*.xcscmblueprint
 
-# Swift Package Manager
-.build/
-.swiftpm/
+# Build artifacts
+*.ipa
+*.dSYM.zip
+*.dSYM
 
-# CocoaPods (uncomment if you use CocoaPods and don't commit Pods)
-# Pods/
-EOF
+# macOS System Files
+#
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Sensitive Configuration
+#
+Config.xcconfig

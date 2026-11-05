@@ -18,7 +18,9 @@ final class ExchangeRateViewModel {
     private(set) var errorMessage: String? = nil
     
     var onStateChanged: (() -> Void)?
-    
+}
+
+extension ExchangeRateViewModel {
     func loadRates(for base: String = "USD") {
         self.baseCurrency = base
         self.isLoading = true

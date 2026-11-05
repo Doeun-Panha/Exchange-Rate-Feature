@@ -8,11 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		B8F35EDF309C2D840085625B /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = B8F35EDE309C2D6C0085625B /* .gitignore */; };
+		B8F35F87309C6DC50085625B /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = B8F35F86309C6DC50085625B /* Config.xcconfig */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		B8648936309AD746009F5600 /* ExchangeRateFeature.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ExchangeRateFeature.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B8F35EDE309C2D6C0085625B /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		B8F35F86309C6DC50085625B /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -48,6 +50,7 @@
 		B864892D309AD746009F5600 = {
 			isa = PBXGroup;
 			children = (
+				B8F35F86309C6DC50085625B /* Config.xcconfig */,
 				B8F35EDE309C2D6C0085625B /* .gitignore */,
 				B8648938309AD746009F5600 /* ExchangeRateFeature */,
 				B8648937309AD746009F5600 /* Products */,
@@ -121,6 +124,7 @@
 		B8648934309AD746009F5600 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
+				B8F35F87309C6DC50085625B /* Config.xcconfig in Resources */,
 				B8F35EDF309C2D840085625B /* .gitignore in Resources */,
 			);
 		};
@@ -205,6 +209,7 @@
 		};
 		B864894C309AD747009F5600 /* Debug configuration for PBXProject "ExchangeRateFeature" */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B8F35F86309C6DC50085625B /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -269,6 +274,7 @@
 		};
 		B864894D309AD747009F5600 /* Release configuration for PBXProject "ExchangeRateFeature" */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B8F35F86309C6DC50085625B /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;

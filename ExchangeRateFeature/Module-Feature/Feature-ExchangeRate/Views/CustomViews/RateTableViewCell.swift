@@ -55,7 +55,9 @@ extension RateTableViewCell {
             contentView.heightAnchor.constraint(equalToConstant: 60)
         ])
     }
-    
+}
+
+extension RateTableViewCell {
     func configure(with currency: String, rate: Double, textColor: UIColor = UIColor(hex: "272b2d")) {
         currencyLabel.textColor = textColor
         rateLabel.textColor = textColor
@@ -72,7 +74,9 @@ extension RateTableViewCell {
         
         rateLabel.text = "\(formattedRate) \(currency)"
     }
-    
+}
+
+extension RateTableViewCell {
     private func flagEmoji(for currencyCode: String) -> String {
         let countryMapping: [String: String] = [
             "USD": "US", "EUR": "EU", "GBP": "GB", "CHF": "CH",
