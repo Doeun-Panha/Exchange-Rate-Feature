@@ -9,6 +9,7 @@ import UIKit
 
 class ExchangeRateViewController: UIViewController {
     private let viewModel = ExchangeRateViewModel()
+    private var isDarkMode = false
     
     private let containerView: UIView = {
         let view = UIView()
@@ -65,10 +66,15 @@ class ExchangeRateViewController: UIViewController {
         return view
     }()
     
+    private lazy var lightThemeButton: UIButton = {
+        return createThemeOptionButton(title: "☀️ White Cream", action: #selector(selectLightTheme))
+    }()
+
+    private lazy var darkThemeButton: UIButton = {
+        return createThemeOptionButton(title: "🌙 Smoke Matte", action: #selector(selectDarkTheme))
+    }()
+
     private lazy var themeStackView: UIStackView = {
-        let lightThemeButton = createThemeOptionButton(title: "☀️ White Cream", action: #selector(selectLightTheme))
-        let darkThemeButton = createThemeOptionButton(title: "🌙 Matte Black", action: #selector(selectDarkTheme))
-        
         let stack = UIStackView(arrangedSubviews: [lightThemeButton, darkThemeButton])
         stack.axis = .vertical
         stack.distribution = .fillEqually
@@ -77,10 +83,10 @@ class ExchangeRateViewController: UIViewController {
         return stack
     }()
     
-    private func createThemeOptionButton(title: String, action: Selector) -> UIButton {
+    private func createThemeOptionButton(title: String, textColor: UIColor = UIColor(hex: "282d44"), action: Selector) -> UIButton {
         let button = UIButton(type: .system)
         button.setTitle(title, for: .normal)
-        button.setTitleColor(UIColor(hex: "282d44"), for: .normal)
+        button.setTitleColor(textColor, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
         button.contentHorizontalAlignment = .leading
         button.contentEdgeInsets = UIEdgeInsets(top: 10, left: 16, bottom: 10, right: 16)
@@ -341,6 +347,7 @@ extension ExchangeRateViewController {
     
     @objc private func selectLightTheme() {
         didTapThemeButton()
+        isDarkMode = false
         
         view.backgroundColor = .white
         
@@ -348,6 +355,10 @@ extension ExchangeRateViewController {
         
         themeButton.setImage(UIImage(named: "White&Cream-theme"), for: .normal)
         themeButton.layer.borderColor = UIColor(hex: "f2e7cb").cgColor
+        
+        themeDropdownView.backgroundColor = .white
+        lightThemeButton.setTitleColor(UIColor(hex: "272b2d"), for: .normal)
+        darkThemeButton.setTitleColor(UIColor(hex: "272b2d"), for: .normal)
         
         titleLabel.textColor = UIColor(hex: "272b2d")
         descriptionLabel.textColor = UIColor(hex: "272b2d").withAlphaComponent(0.75)
@@ -366,6 +377,7 @@ extension ExchangeRateViewController {
     
     @objc private func selectDarkTheme() {
         didTapThemeButton()
+        isDarkMode = true
         
         view.backgroundColor = UIColor(hex: "636366")
         
@@ -373,6 +385,10 @@ extension ExchangeRateViewController {
         
         themeButton.setImage(UIImage(named: "Smoke&Matte-theme"), for: .normal)
         themeButton.layer.borderColor = UIColor(hex: "272b2d").cgColor
+        
+        themeDropdownView.backgroundColor = UIColor(hex: "272b2d")
+        lightThemeButton.setTitleColor(.white, for: .normal)
+        darkThemeButton.setTitleColor(.white, for: .normal)
         
         titleLabel.textColor = UIColor(hex: "ffffff")
         descriptionLabel.textColor = UIColor(hex: "ffffff").withAlphaComponent(0.75)
@@ -409,7 +425,9 @@ extension ExchangeRateViewController: UITableViewDataSource {
         }
         
         let item = viewModel.rates[indexPath.row]
-        cell.configure(with: item.key, rate: item.value)
+        
+        let cellTextColor = isDarkMode ? UIColor.white : UIColor(hex: "272b2d")
+        cell.configure(with: item.key, rate: item.value, textColor: cellTextColor)
         
         return cell
     }

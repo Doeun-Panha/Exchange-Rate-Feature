@@ -13,7 +13,6 @@ final class RateTableViewCell: UITableViewCell {
     private let currencyLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18, weight: .regular)
-        label.textColor = UIColor(hex: "272b2d")
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -21,7 +20,6 @@ final class RateTableViewCell: UITableViewCell {
     private let rateLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18, weight: .regular)
-        label.textColor = UIColor(hex: "272b2d")
         label.textAlignment = .right
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -58,7 +56,10 @@ extension RateTableViewCell {
         ])
     }
     
-    func configure(with currency: String, rate: Double) {
+    func configure(with currency: String, rate: Double, textColor: UIColor = UIColor(hex: "272b2d")) {
+        currencyLabel.textColor = textColor
+        rateLabel.textColor = textColor
+        
         let flag = flagEmoji(for: currency)
         currencyLabel.text = "\(flag) \(currency)"
         
