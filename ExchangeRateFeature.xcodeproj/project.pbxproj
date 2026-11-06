@@ -7,12 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B8D1A95A309D723E003B48D7 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B8D1A959309D7235003B48D7 /* README.md */; };
 		B8F35EDF309C2D840085625B /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = B8F35EDE309C2D6C0085625B /* .gitignore */; };
 		B8F35F87309C6DC50085625B /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = B8F35F86309C6DC50085625B /* Config.xcconfig */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		B8648936309AD746009F5600 /* ExchangeRateFeature.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ExchangeRateFeature.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B8D1A959309D7235003B48D7 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		B8F35EDE309C2D6C0085625B /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		B8F35F86309C6DC50085625B /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -50,6 +52,7 @@
 		B864892D309AD746009F5600 = {
 			isa = PBXGroup;
 			children = (
+				B8D1A959309D7235003B48D7 /* README.md */,
 				B8F35F86309C6DC50085625B /* Config.xcconfig */,
 				B8F35EDE309C2D6C0085625B /* .gitignore */,
 				B8648938309AD746009F5600 /* ExchangeRateFeature */,
@@ -126,6 +129,7 @@
 			files = (
 				B8F35F87309C6DC50085625B /* Config.xcconfig in Resources */,
 				B8F35EDF309C2D840085625B /* .gitignore in Resources */,
+				B8D1A95A309D723E003B48D7 /* README.md in Resources */,
 			);
 		};
 /* End PBXResourcesBuildPhase section */
