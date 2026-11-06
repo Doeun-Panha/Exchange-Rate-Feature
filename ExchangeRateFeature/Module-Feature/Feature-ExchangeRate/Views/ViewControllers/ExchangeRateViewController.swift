@@ -35,7 +35,7 @@ class ExchangeRateViewController: UIViewController {
         button.clipsToBounds = true
         button.layer.cornerRadius = 20
         button.layer.borderWidth = 1.5
-        button.layer.borderColor = UIColor(hex: "f2e7cb").cgColor
+        button.layer.borderColor = UIColor(hex: "caa243").cgColor
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(didTapThemeButton), for: .touchUpInside)
         return button
@@ -131,74 +131,13 @@ class ExchangeRateViewController: UIViewController {
         return label
     }()
     
-    private let contentContainerView: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor(hex: "f2e7cb")
-        view.layer.cornerRadius = 32
-        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-        view.clipsToBounds = true
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    private lazy var contentHeaderStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [currencyLabel, UIView(), rateLabel])
-        stackView.axis = .horizontal
-        stackView.alignment = .center
-        stackView.distribution = .fill
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
-    }()
-    
-    private let currencyLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 18, weight: .medium)
-        label.textColor = UIColor(hex: "282d44")
-        label.text = "Currency"
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let rateLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 18, weight: .medium)
-        label.textColor = UIColor(hex: "282d44")
-        label.textAlignment = .right
-        label.text = "Rate"
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .plain)
-        tableView.backgroundColor = .white
-        tableView.layer.cornerRadius = 24
-        tableView.clipsToBounds = true
-        tableView.separatorColor = UIColor(hex: "cd9e2f").withAlphaComponent(0.25)
-        tableView.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-        tableView.showsVerticalScrollIndicator = false
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.register(RateTableViewCell.self, forCellReuseIdentifier: RateTableViewCell.identifier)
-        tableView.dataSource = self
-        return tableView
-    }()
+    private let contentView = ExchangeRateContentView()
     
     private let activityIndicatorView: UIActivityIndicatorView = {
         let activityIndicatorView = UIActivityIndicatorView(style: .large)
         activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
         activityIndicatorView.hidesWhenStopped = true
         return activityIndicatorView
-    }()
-    
-    private let warningLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .regular)
-        label.numberOfLines = 2
-        label.textColor = UIColor(hex: "282d44")
-        label.textAlignment = .center
-        label.text = "The rates are quoted for indicative purpose only and subject to variation."
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
     }()
     
     private let refreshControl = UIRefreshControl()
@@ -242,17 +181,15 @@ extension ExchangeRateViewController {
         view.addSubview(activityIndicatorView)
         
         containerView.addSubview(appIconImageView)
-        containerView.addSubview(themeButton)
         containerView.addSubview(headerStackView)
-        containerView.addSubview(contentContainerView)
+        containerView.addSubview(themeButton)
+        
+        containerView.addSubview(contentView)
+        
         containerView.addSubview(dismissOverlayView)
         containerView.addSubview(themeDropdownView)
         
         themeDropdownView.addSubview(themeStackView)
-        
-        contentContainerView.addSubview(contentHeaderStackView)
-        contentContainerView.addSubview(tableView)
-        contentContainerView.addSubview(warningLabel)
         
         NSLayoutConstraint.activate([
             containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -289,30 +226,20 @@ extension ExchangeRateViewController {
             headerStackView.leadingAnchor.constraint(equalTo: appIconImageView.trailingAnchor, constant: 12),
             headerStackView.trailingAnchor.constraint(equalTo: themeButton.leadingAnchor, constant: -12),
             
-            contentContainerView.topAnchor.constraint(equalTo: headerStackView.bottomAnchor, constant: 24),
-            contentContainerView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            contentContainerView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            contentContainerView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
-            
-            contentHeaderStackView.topAnchor.constraint(equalTo: contentContainerView.topAnchor, constant: 20),
-            contentHeaderStackView.leadingAnchor.constraint(equalTo: contentContainerView.leadingAnchor, constant: 30),
-            contentHeaderStackView.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor, constant: -30),
-            
-            tableView.topAnchor.constraint(equalTo: contentHeaderStackView.bottomAnchor, constant: 20),
-            tableView.leadingAnchor.constraint(equalTo: contentContainerView.leadingAnchor, constant: 10),
-            tableView.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor, constant: -10),
-            tableView.bottomAnchor.constraint(equalTo: warningLabel.topAnchor, constant: -20),
-            
-            warningLabel.leadingAnchor.constraint(equalTo: contentContainerView.leadingAnchor, constant: 10),
-            warningLabel.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor, constant: -10),
-            warningLabel.bottomAnchor.constraint(equalTo: contentContainerView.bottomAnchor, constant: -20),
+            contentView.topAnchor.constraint(equalTo: headerStackView.bottomAnchor, constant: 24),
+            contentView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
             
             activityIndicatorView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicatorView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
         
+        contentView.tableView.dataSource = nil
+        contentView.tableView.dataSource = self
+        
         refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
-        tableView.refreshControl = refreshControl
+        contentView.tableView.refreshControl = refreshControl
     }
 }
 
@@ -399,7 +326,7 @@ extension ExchangeRateViewController {
                     self.showErrorAlert(message: error)
                 }
                 
-                self.tableView.reloadData()
+                self.contentView.tableView.reloadData()
                 self.descriptionLabel.text = "Base: \(self.viewModel.baseCurrency) | \(self.viewModel.lastUpdatedDate)"
             }
         }
@@ -415,7 +342,6 @@ extension ExchangeRateViewController {
     
     private func updateTheme(isDark: Bool) {
         let backgroundColor = isDark ? UIColor(hex: "636366") : .white
-        let containerBackgroundColor = isDark ? UIColor(hex: "272b2d") : UIColor(hex: "f2e7cb")
         let textColor = isDark ? .white : UIColor(hex: "272b2d")
         let descriptionLabelColor = isDark ? UIColor.white.withAlphaComponent(0.75) : UIColor(hex: "272b2d").withAlphaComponent(0.75)
         let logoName = isDark ? "AppLogo (Dark Mode)" : "AppLogo"
@@ -426,7 +352,6 @@ extension ExchangeRateViewController {
         view.backgroundColor = backgroundColor
         appIconImageView.image = UIImage(named: logoName)
         themeButton.setImage(UIImage(named: themeIconName), for: .normal)
-        themeButton.layer.borderColor = containerBackgroundColor.cgColor
         
         themeDropdownView.backgroundColor = dropdownBackground
         lightThemeButton.configuration?.baseForegroundColor = buttonTextColor
@@ -434,14 +359,7 @@ extension ExchangeRateViewController {
         
         titleLabel.textColor = textColor
         descriptionLabel.textColor = descriptionLabelColor
-        contentContainerView.backgroundColor = containerBackgroundColor
-        currencyLabel.textColor = textColor
-        rateLabel.textColor = textColor
         
-        tableView.backgroundColor = backgroundColor
-        tableView.separatorColor = containerBackgroundColor
-        tableView.reloadData()
-        
-        warningLabel.textColor = textColor
+        contentView.updateTheme(isDark: isDark)
     }
 }
