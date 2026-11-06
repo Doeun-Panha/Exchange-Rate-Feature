@@ -78,12 +78,12 @@ ExchangeRateFeature/
 ### Installation & Configuration
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/Doeun-Panha/Exchange-Rate-Feature.git](https://github.com/Doeun-Panha/Exchange-Rate-Feature.git)
+   git clone https://github.com/Doeun-Panha/Exchange-Rate-Feature.git
    ```
 2. Create your local configuration file:
    * At the root of the project, create a file named `Config.xcconfig`.
    * Add your API base URL:
      ```text
-     API_BASE_URL = [api.yourprovider.com](api.yourprovider.com)
+     API_BASE_URL = api.yourprovider.com
      ```
 3. Open `ExchangeRateFeature.xcodeproj` in Xcode, link `Config.xcconfig` under your project configurations, and build/run the app!
